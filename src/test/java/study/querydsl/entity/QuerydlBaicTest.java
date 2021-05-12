@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import study.querydsl.dto.MemberDto;
+import study.querydsl.dto.QMemberDto;
 import study.querydsl.dto.UserDto;
 
 import javax.persistence.EntityManager;
@@ -628,6 +629,10 @@ public class QuerydlBaicTest {
 
     }
 
+    /**
+     *  단점, compile 할때는 에러가 안나지만 runTime Error 가 날수가 있다.
+     *  가령, select 부분에 다른 column를 임으로 추가 할 때
+     */
     @Test
     public void findUserDtoByConstructor(){
         List<UserDto> fetch = queryFactory
@@ -640,7 +645,24 @@ public class QuerydlBaicTest {
         for (UserDto userDto : fetch) {
             System.out.println("userDto = " + userDto);
         }
+    }
 
+    /**
+     * compile 시점에 에러가 발생
+     * 단점
+     * 1) Q파일 생성해야함
+     * 2) MemberDto가 QueryDsl에 영향이 있음(의존성이 생김, 구조적 문제!)
+     */
+    @Test
+    public void findDtoByQueryProjection(){
+        List<MemberDto> fetch = queryFactory
+                .select(new QMemberDto(member.username, member.age))
+                .from(member)
+                .fetch();
+
+        for (MemberDto memberDto : fetch) {
+            System.out.println("memberDto = " + memberDto);
+        }
 
     }
 }
