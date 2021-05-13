@@ -1,6 +1,7 @@
 package study.querydsl.entity;
 
 
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.ExpressionUtils;
@@ -22,6 +23,7 @@ import study.querydsl.dto.UserDto;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceUnit;
+import javax.persistence.criteria.CriteriaBuilder;
 
 import java.util.List;
 
@@ -664,5 +666,33 @@ public class QuerydlBaicTest {
             System.out.println("memberDto = " + memberDto);
         }
 
+    }
+
+    @Test
+    public void dynamicQuery_BooleanBuilder() {
+        String usernameParam = "member1";
+        Integer ageParam =10;
+
+        List<Member> result = serchMember1(usernameParam,ageParam);
+        assertThat(result.size()).isEqualTo(1);
+
+    }
+
+    private List<Member> serchMember1(String usernameCond, Integer ageCond) {
+
+        BooleanBuilder builder = new BooleanBuilder();
+
+        if( usernameCond != null ) {
+            builder.and(member.username.eq(usernameCond));;
+        }
+
+        if( ageCond != null ){
+            builder.and(member.age.eq(ageCond));
+        }
+        List<Member> fetch = queryFactory
+                .selectFrom(member)
+                .where(builder)
+                .fetch();
+        return fetch;
     }
 }
