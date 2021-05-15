@@ -735,4 +735,57 @@ public class QuerydlBaicTest {
     private BooleanExpression allEq(String usernameCond, Integer ageCond){
         return usernameEq(usernameCond).and(ageEq(ageCond));
     }
+
+    @Test
+    public void bulkUpdate() {
+
+        // member1 = 10 -> DB member1
+        // member2 = 20 -> DB member2
+        // member3 = 30 -> DB member3
+        // member4 = 40 -> DB member4
+
+        long count = queryFactory
+                .update(member)
+                .set(member.username, "비회원")
+                .where(member.age.lt(28))
+                .execute();
+
+        // 영속성 context 초기화를 해줘야한다!
+        em.flush();
+        em.clear();
+
+        // member1 = 10 -> DB 비회원
+        // member2 = 20 -> DB 비회원
+        // member3 = 30 -> DB member3
+        // member4 = 40 -> DB member4
+
+        List<Member> result = queryFactory
+                .selectFrom(member)
+                .fetch();
+
+        // (중요)DB에는 영속성 context에 있는 정보를 가져오기 때문에, 변경된 member의 값을 가져오지 않는다.
+        // 따라서 bulk 연사이후, 영속성 context를 초기화 해준다.
+        for (Member member1 : result) {
+            System.out.println("member1 = " + member1);
+        }
+
+    }
+
+    @Test
+    public void bulkAdd() {
+
+        long count = queryFactory
+                .update(member)
+                .set(member.age, member.age.add(1))
+                // .set(member.age, member.age.multiply(1))
+                .execute();
+    }
+
+    @Test
+    public void bulkDelete() {
+        long count = queryFactory
+                .delete(member)
+                .where(member.age.gt(18))
+                .execute();
+    }
 }
