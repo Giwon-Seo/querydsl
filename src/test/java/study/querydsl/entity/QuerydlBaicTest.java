@@ -823,6 +823,5 @@ public class QuerydlBaicTest {
         for (String s : result) {
             System.out.println("s = " + s);
         }
-
     }
 }
